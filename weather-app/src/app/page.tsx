@@ -1,4 +1,5 @@
 import Image from "next/image";
+import WeatherCard from "@/components/WeatherCard";
 
 export default function Home() {
   return (
@@ -14,14 +15,8 @@ export default function Home() {
           </p>
         </div>
 
-              <div className="flex gap-6">
+        <WeatherCard />
         
-        <div className="w-64 h-40 bg-white text-black rounded-xl shadow-md flex items-center justify-center">
-          Widget
-        </div>
-
-       
-      </div> 
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
           <a
             className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
