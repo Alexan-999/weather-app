@@ -3,21 +3,30 @@
 import { useState } from "react";
 import SearchBar from "./components/SearchBar";
 import WeatherCard from "./components/WeatherCard";
-import { getWeatherByCoords } from "@/api/weather";
+import ErrorCard from "./components/ErrorCard";
+import { getWeatherByCity } from "@/api/weather";
 import { Weather } from "@/api/types/weather";
 
 export default function Home() {
   const [weather, setWeather] = useState<Weather | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSearch = async (city: string) => {
-    console.log("Searching:", city);
+    setIsLoading(true);
+    setError(null);
+    setWeather(null);
 
-    const lat = 19.43;
-    const lon = -99.13;
-
-    const data = await getWeatherByCoords(lat, lon);
-    setWeather(data);
+    try {
+      const data = await getWeatherByCity(city);
+      setWeather(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ocurrió un error inesperado.");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -32,8 +41,10 @@ export default function Home() {
           </p>
         </div>
 
-        <SearchBar onSearch={handleSearch} />
-        <WeatherCard weather={weather} />
+              <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+
+        {error && <ErrorCard message={error} />}
+        {weather && <WeatherCard weather={weather} />}
 
       </main>
     </div>
