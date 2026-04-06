@@ -4,28 +4,39 @@ import { useState } from "react";
 import SearchBar from "./components/SearchBar";
 import WeatherCard from "./components/WeatherCard";
 import ErrorCard from "./components/ErrorCard";
-import { getWeatherByCity } from "@/api/weather";
-import { Weather } from "@/api/types/weather";
+import { CityNotFoundError, NetworkError, getWeatherByCity } from "@/api/weather";
+import { Weather } from "@/api/types/weatherType";
+import { ErrorType } from "./components/ErrorCard";
 
 export default function Home() {
   const [weather, setWeather] = useState<Weather | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorType, setErrorType] = useState<ErrorType | null>(null);
 
-  const handleSearch = async (city: string) => {
-    setIsLoading(true);
-    setError(null);
-    setWeather(null);
 
-    try {
-      const data = await getWeatherByCity(city);
-      setWeather(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ocurrió un error inesperado.");
-    } finally {
-      setIsLoading(false);
+const handleSearch = async (city: string) => {
+  setIsLoading(true);
+  setError(null);
+  setErrorType(null);
+  setWeather(null);
+
+  try {
+    const data = await getWeatherByCity(city);
+    setWeather(data);
+  } catch (err) {
+    if (err instanceof CityNotFoundError) {
+      setErrorType("not_found");
+    } else if (err instanceof NetworkError) {
+      setErrorType("network");
+    } else {
+      setErrorType("unknown");
     }
-  };
+    setError(err instanceof Error ? err.message : "Error inesperado.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
 
   return (
@@ -41,7 +52,7 @@ export default function Home() {
       </div>
 
       <SearchBar onSearch={handleSearch} isLoading={isLoading} />
-      {error && <ErrorCard message={error} />}
+      {error && errorType && <ErrorCard message={error} type={errorType} />}
       {weather && <WeatherCard weather={weather} />}
     </main>
   </div>

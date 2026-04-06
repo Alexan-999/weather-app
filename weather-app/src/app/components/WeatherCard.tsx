@@ -1,4 +1,4 @@
-import { Weather } from "@/api/types/weather";
+import { Weather } from "@/api/types/weatherType";
 
 function getWeatherMood(temp: number) {
   if (temp >= 30) return { emoji: "☀️", label: "Caluroso", bg: "from-orange-400 to-rose-400" };

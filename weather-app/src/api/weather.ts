@@ -21,30 +21,48 @@ type WeatherResponse = {
   };
 };
 
+export class CityNotFoundError extends Error {
+  constructor(city: string) {
+    super(`No encontramos "${city}". Verifica el nombre e intenta de nuevo.`);
+    this.name = "CityNotFoundError";
+  }
+}
+
+export class NetworkError extends Error {
+  constructor() {
+    super("Sin conexión. Revisa tu internet e intenta de nuevo.");
+    this.name = "NetworkError";
+  }
+}
+
 export async function getWeatherByCity(city: string): Promise<Weather> {
-  // 1. Geocoding: ciudad → coordenadas
-  const geoRes = await fetch(
-    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
-  );
+  let geoData: GeoResult;
 
-  if (!geoRes.ok) throw new Error("Error conectando con el servicio de ubicación.");
-
-  const geoData: GeoResult = await geoRes.json();
+  try {
+    const geoRes = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+    );
+    geoData = await geoRes.json();
+  } catch {
+    throw new NetworkError();
+  }
 
   if (!geoData.results || geoData.results.length === 0) {
-    throw new Error(`No se encontró ninguna ciudad llamada "${city}". Intenta con otro nombre.`);
+    throw new CityNotFoundError(city);
   }
 
   const { latitude, longitude, name, country } = geoData.results[0];
 
-  // 2. Clima: coordenadas → datos
-  const weatherRes = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
-  );
+  let weatherData: WeatherResponse;
 
-  if (!weatherRes.ok) throw new Error("Error obteniendo los datos del clima.");
-
-  const weatherData: WeatherResponse = await weatherRes.json();
+  try {
+    const weatherRes = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+    );
+    weatherData = await weatherRes.json();
+  } catch {
+    throw new NetworkError();
+  }
 
   return {
     temperature: weatherData.current_weather.temperature,
