@@ -31,7 +31,7 @@ export default function WeatherCard({ weather }: { weather: Weather | null }) {
           </div>
 
           {/* Stats */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 bg-white/15 rounded-2xl p-4 backdrop-blur-sm">
               <p className="text-white/70 text-xs uppercase tracking-wider mb-1">Temperatura</p>
               <p className="text-3xl font-bold">{weather.temperature}°C</p>

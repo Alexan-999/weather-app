@@ -16,7 +16,7 @@ export default function SearchBar({
   };
 
   return (
-    <div className="flex w-full max-w-md gap-3">
+    <div className="flex w-full gap-3">
       <input
         value={city}
         onChange={(e) => setCity(e.target.value)}
@@ -24,12 +24,14 @@ export default function SearchBar({
         type="text"
         placeholder="Ciudad, país..."
         disabled={isLoading}
-        className="flex-1 border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 px-4 py-3 rounded-2xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 transition disabled:opacity-50"
+        className="flex-1 min-w-0 border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 px-4 py-3 rounded-2xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 transition disabled:opacity-50"
+
       />
       <button
         onClick={() => city.trim() && onSearch(city.trim())}
         disabled={isLoading || !city.trim()}
-        className="bg-sky-500 hover:bg-sky-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-3 rounded-2xl text-sm font-medium shadow-sm transition-all duration-150"
+        className="shrink-0 bg-sky-500 hover:bg-sky-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-3 rounded-2xl text-sm font-medium shadow-sm transition-all duration-150"
+
       >
         {isLoading ? (
           <span className="flex items-center gap-2">
