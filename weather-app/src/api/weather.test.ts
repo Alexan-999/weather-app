@@ -8,9 +8,11 @@ describe("getWeatherByCity", () => {
     jest.clearAllMocks();
   });
 
-  it("funciona con ciudad válida", async () => {
+  it("returns weather data for a valid city", async () => {
     (fetch as jest.Mock)
+      // getCoordinates
       .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({
           results: [
             {
@@ -22,7 +24,9 @@ describe("getWeatherByCity", () => {
           ],
         }),
       })
+      // getWeather
       .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({
           current_weather: {
             temperature: 20,
@@ -33,30 +37,59 @@ describe("getWeatherByCity", () => {
 
     const result = await getWeatherByCity("Madrid");
 
-    expect(result.city).toBe("Madrid");
-    expect(result.temperature).toBe(20);
+    expect(result).toEqual({
+      temperature: 20,
+      windspeed: 5,
+      city: "Madrid",
+      country: "Spain",
+    });
   });
 
-  // City not found
-  it("lanza error si la ciudad no existe", async () => {
+  it("throws CityNotFoundError if city does not exist", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
       json: async () => ({ results: [] }),
     });
 
     await expect(getWeatherByCity("asdf")).rejects.toThrow(CityNotFoundError);
   });
 
-  //  Network Error
-  it("lanza error de red si fetch falla", async () => {
-    (fetch as jest.Mock).mockRejectedValueOnce(new Error("fail"));
+  it("throws NetworkError if geocoding request fails", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+    });
 
     await expect(getWeatherByCity("Madrid")).rejects.toThrow(NetworkError);
   });
 
-  // Edge case 1: format API
-  it("maneja respuesta inesperada de la API", async () => {
+  it("throws NetworkError if weather request fails", async () => {
+    (fetch as jest.Mock)
+      // getCoordinates
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            {
+              name: "Madrid",
+              country: "Spain",
+              latitude: 40,
+              longitude: -3,
+            },
+          ],
+        }),
+      })
+      // getWeather fails
+      .mockResolvedValueOnce({
+        ok: false,
+      });
+
+    await expect(getWeatherByCity("Madrid")).rejects.toThrow(NetworkError);
+  });
+
+  it("throws error if weather API response is malformed", async () => {
     (fetch as jest.Mock)
       .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({
           results: [
             {
@@ -69,32 +102,11 @@ describe("getWeatherByCity", () => {
         }),
       })
       .mockResolvedValueOnce({
-        json: async () => ({
-          // no current_weather
-        }),
+        ok: true,
+        json: async () => ({}), // missing current_weather
       });
 
     await expect(getWeatherByCity("Madrid")).rejects.toThrow();
-  });
-
-  //Edge case 2: API Fails
-  it("maneja error en weather API", async () => {
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce({
-        json: async () => ({
-          results: [
-            {
-              name: "Madrid",
-              country: "Spain",
-              latitude: 40,
-              longitude: -3,
-            },
-          ],
-        }),
-      })
-      .mockRejectedValueOnce(new Error("timeout"));
-
-    await expect(getWeatherByCity("Madrid")).rejects.toThrow(NetworkError);
   });
 
 });
