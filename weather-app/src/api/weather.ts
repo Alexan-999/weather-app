@@ -79,35 +79,36 @@ export class NetworkError extends Error {
  * ```
  */
 
-export async function getWeatherByCity(city: string): Promise<Weather> {
-  let geoData: GeoResult;
-
-  try {
-    const geoRes = await fetch(
+async function getCoordinates(city: string) {
+  const res = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
     );
-    geoData = await geoRes.json();
-  } catch {
-    throw new NetworkError();
-  }
 
-  if (!geoData.results || geoData.results.length === 0) {
+  if (!res.ok) throw new NetworkError();
+
+  const data: GeoResult = await res.json();
+
+  if (!data.results?.length) {
     throw new CityNotFoundError(city);
   }
 
-  const { latitude, longitude, name, country } = geoData.results[0];
+  return data.results[0];
+}
 
-  let weatherData: WeatherResponse;
-
-  try {
-    const weatherRes = await fetch(
+async function getWeather(latitude: number, longitude: number) {
+  const res = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
     );
-    weatherData = await weatherRes.json();
-  } catch {
-    throw new NetworkError();
-  }
 
+  if (!res.ok) throw new NetworkError();
+
+  return res.json() as Promise<WeatherResponse>;
+}
+
+export async function getWeatherByCity(city: string): Promise<Weather> {
+   const { latitude, longitude, name, country } = await getCoordinates(city);
+  const weatherData = await getWeather(latitude, longitude);
+  
   return {
     temperature: weatherData.current_weather.temperature,
     windspeed: weatherData.current_weather.windspeed,
