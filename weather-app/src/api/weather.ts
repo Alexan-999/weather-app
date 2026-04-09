@@ -21,6 +21,29 @@ type WeatherResponse = {
   };
 };
 
+const cache = new Map<string, { data: Weather; timestamp: number }>();
+
+function getFromCache(city: string): Weather | null {
+  const record = cache.get(city.toLowerCase());
+
+  if (!record) return null;
+
+  const ONE_HOUR = 1000 * 60 * 60;
+
+  if (Date.now() - record.timestamp < ONE_HOUR) {
+    return record.data;
+  }
+
+  return null;
+}
+
+function saveToCache(city: string, data: Weather) {
+  cache.set(city.toLowerCase(), {
+    data,
+    timestamp: Date.now(),
+  });
+}
+
 export class CityNotFoundError extends Error {
   constructor(city: string) {
     super(`No encontramos "${city}". Verifica el nombre e intenta de nuevo.`);
@@ -86,13 +109,25 @@ async function getWeather(latitude: number, longitude: number) {
  */
 
 export async function getWeatherByCity(city: string): Promise<Weather> {
-   const { latitude, longitude, name, country } = await getCoordinates(city);
+
+  const cached = getFromCache(city);
+  if (cached) {
+    console.log("Using cache");
+    return cached;
+  }
+
+  const { latitude, longitude, name, country } = await getCoordinates(city);
   const weatherData = await getWeather(latitude, longitude);
   
-  return {
+  const result: Weather = {
     temperature: weatherData.current_weather.temperature,
     windspeed: weatherData.current_weather.windspeed,
     city: name,
     country,
   };
+
+  saveToCache(city, result);
+
+  return result;
+
 }
