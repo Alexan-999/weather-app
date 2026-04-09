@@ -2,6 +2,7 @@ export interface ForecastDay {
   date: string;
   maxTemperature: number;
   minTemperature: number;
+  weathercode: number;
 }
 
 export interface Weather {
@@ -25,11 +26,13 @@ type WeatherResponse = {
   current_weather: {
     temperature: number;
     windspeed: number;
+    weathercode: number;
   };
   daily: {
     time: string[];
     temperature_2m_max: number[];
     temperature_2m_min: number[];
+    weathercode: number[]; 
   };
 };
 
@@ -88,12 +91,21 @@ async function getCoordinates(city: string) {
 
 async function getWeather(latitude: number, longitude: number) {
   const res = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min&timezone=auto`
-  );
+  `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`
+);
 
   if (!res.ok) throw new NetworkError();
 
   return res.json() as Promise<WeatherResponse>;
+}
+
+function mapForecast(data: WeatherResponse["daily"]) {
+  return data.time.slice(0, 5).map((date, index) => ({
+    date,
+    maxTemperature: data.temperature_2m_max[index],
+    minTemperature: data.temperature_2m_min[index],
+    weathercode: data.weathercode[index],
+  }));
 }
 
 /**
@@ -119,14 +131,6 @@ async function getWeather(latitude: number, longitude: number) {
  * console.log(weather.temperature);
  * ```
  */
-
-function mapForecast(data: WeatherResponse["daily"]) {
-  return data.time.slice(0, 5).map((date, index) => ({
-    date,
-    maxTemperature: data.temperature_2m_max[index],
-    minTemperature: data.temperature_2m_min[index],
-  }));
-}
 
 export async function getWeatherByCity(city: string): Promise<Weather> {
 

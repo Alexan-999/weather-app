@@ -2,6 +2,7 @@ export interface ForecastDay {
   date: string;
   maxTemperature: number;
   minTemperature: number;
+  weathercode: number;
 }
 
 export interface Weather {

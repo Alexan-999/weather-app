@@ -1,4 +1,5 @@
 import { ForecastDay } from "@/api/types/weatherType";
+import { getWeatherIcon } from "@/utils/weatherUtils";
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString("en-US", {
@@ -36,6 +37,11 @@ export default function ForecastCard({ forecast }: { forecast: ForecastDay[] }) 
               <p className="text-xs text-white/60 mb-1">
                 {formatDate(day.date)}
               </p>
+
+              {/* icon */}
+              <span className="text-xl mb-1">
+                {getWeatherIcon(day.weathercode)}
+              </span>
 
               <p className="text-white font-semibold text-sm">
                 {day.maxTemperature}°
