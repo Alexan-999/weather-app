@@ -7,6 +7,7 @@ import ErrorCard from "./components/ErrorCard";
 import { CityNotFoundError, NetworkError, getWeatherByCity } from "@/api/weather";
 import { Weather } from "@/api/types/weatherType";
 import { ErrorType } from "./components/ErrorCard";
+import ForecastCard from "./components/ForecastCard";
 
 export default function Home() {
   const [weather, setWeather] = useState<Weather | null>(null);
@@ -54,6 +55,7 @@ const handleSearch = async (city: string) => {
       <SearchBar onSearch={handleSearch} isLoading={isLoading} />
       {error && errorType && <ErrorCard message={error} type={errorType} />}
       {weather && <WeatherCard weather={weather} />}
+      {weather && <ForecastCard forecast={weather.forecast} />}
     </main>
   </div>
     

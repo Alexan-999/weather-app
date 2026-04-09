@@ -1,8 +1,15 @@
+export interface ForecastDay {
+  date: string;
+  maxTemperature: number;
+  minTemperature: number;
+}
+
 export interface Weather {
   temperature: number;
   windspeed: number;
   city: string;
   country: string;
+  forecast: ForecastDay[];
 }
 
 type GeoResult = {
@@ -18,6 +25,11 @@ type WeatherResponse = {
   current_weather: {
     temperature: number;
     windspeed: number;
+  };
+  daily: {
+    time: string[];
+    temperature_2m_max: number[];
+    temperature_2m_min: number[];
   };
 };
 
@@ -76,8 +88,8 @@ async function getCoordinates(city: string) {
 
 async function getWeather(latitude: number, longitude: number) {
   const res = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
-    );
+    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min&timezone=auto`
+  );
 
   if (!res.ok) throw new NetworkError();
 
@@ -108,6 +120,14 @@ async function getWeather(latitude: number, longitude: number) {
  * ```
  */
 
+function mapForecast(data: WeatherResponse["daily"]) {
+  return data.time.slice(0, 5).map((date, index) => ({
+    date,
+    maxTemperature: data.temperature_2m_max[index],
+    minTemperature: data.temperature_2m_min[index],
+  }));
+}
+
 export async function getWeatherByCity(city: string): Promise<Weather> {
 
   const cached = getFromCache(city);
@@ -124,6 +144,7 @@ export async function getWeatherByCity(city: string): Promise<Weather> {
     windspeed: weatherData.current_weather.windspeed,
     city: name,
     country,
+    forecast: mapForecast(weatherData.daily),
   };
 
   saveToCache(city, result);
