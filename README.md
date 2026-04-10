@@ -1,161 +1,111 @@
 # 🌤️ Weather App (Next.js)
 
-Aplicación web desarrollada con **Next.js** que permite a los usuarios buscar el clima actual de cualquier ciudad en el mundo. Utiliza la API de Open-Meteo para obtener información en tiempo real como temperatura y velocidad del viento.
+A simple web application built with **Next.js** that allows users to search for the current weather by city and its 5 day forecast. It uses the Open-Meteo API to fetch real-time data such as temperature and wind speed.
 
 ---
 
-## 📌 Resumen del proyecto
+## 📌Project Overview
 
-Esta aplicación permite:
+This application allows users to:
 
-- Buscar una ciudad ingresando su nombre
-- Obtener temperatura actual y velocidad del viento
-- Visualizar los datos en una interfaz moderna y responsiva
-- Manejar errores como ciudades no encontradas o problemas de red
+- Search for a city by name
+- Get the current temperature and wind speed
+- View results in a modern and responsive UI
+- Handle errors such as city not found or network issues
 
-El proyecto también incluye **pruebas unitarias con Jest** para garantizar la calidad del código.
+The project also includes unit tests with Jest to ensure code quality.
 
 ---
 
-## ⚙️ Instalación
+## ⚠️ Important Note About Project Structure
 
-Sigue estos pasos para correr el proyecto en tu entorno local:
+Due to the project setup, the actual application is located inside a nested folder:
+```bash
+weather-app/weather-app
+```
+So you need to navigate into the inner folder before running the project.
+
+---
+
+## ⚙️ Requirements
+
+Before running the project, make sure you have installed:
+
+Node.js (recommended version: 18 or higher) & npm (comes bundled with Node.js)
+
+To verify installation:
 
 ```bash
-# Clonar el repositorio
-git clone <tu-repo-url>
+node -v
+npm -v
+```
 
-# Entrar al proyecto
+---
+
+## 🚀 Getting Started (Step-by-Step)
+
+Follow these steps to run the project locally:
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/Alexan-999/weather-app.git
+```
+### 2. Navigate to the project folder
+```bash
 cd weather-app
-
-# Instalar dependencias
-npm install
-
-# Ejecutar en modo desarrollo
-npm run dev 
 ```
-
-La aplicación estará disponible en:
+### 3. Navigate to the inner folder
 ```bash
-[function () { return "This code is highlighted as Javascript!"}](http://localhost:3000)
+cd weather-app
+```
+Final path should look like:
+```bash
+YourUser/Documents/weather-app/weather-app
+```
+### 4. Install dependencies
+```bash
+npm install
+```
+### 5. Run the development server
+```bash
+npm run dev
+```
+### 6. Open in your browser
+```bash
+[npm run dev](http://localhost:3000)
 ```
 
 ---
-
-## 🧪 Ejecutar pruebas
-
-Para correr las pruebas unitarias:
+## 🧪 Run Tests
+To execute unit tests:
 ```bash
 npm test
 ```
 
 ---
 
-## 🚀 Guía de uso
-1.- Abre la aplicación en el navegador
-2.- Escribe el nombre de una ciudad (ej: Madrid, Tokyo, CDMX)
-30- Presiona Enter o el botón Buscar
-4.- Visualiza el clima actual
+## 🚀 Usage Guide
+- 1.- Open the application in your browser
+- 2.- Enter a city name (e.g., Madrid, Tokyo, Mexico City)
+- 3.- Press Enter or click the search button
+- 4.- View the current weather data
 
-📊 Ejemplo de resultado
-```bash
-{
-  "temperature": 20,
-  "windspeed": 5,
-  "city": "Madrid",
-  "country": "Spain"
-}
-```
-En la interfaz se muestra:
-🌡️ Temperatura (°C)
-💨 Velocidad del viento (km/h)
-🌤️ Estado visual del clima (emoji + color dinámico)
+UI Displays:
+🌡️ Temperature (°C)
+💨 Wind speed (km/h)
+🌤️ Visual weather state
+⚡ 5 Day Forecast
 
 ---
 
-## ✨ Funcionalidades
-- 🔍 Búsqueda de ciudades en tiempo real
-- 🌡️ Visualización de temperatura actual
-- 💨 Visualización de velocidad del viento
-- 🎨 UI dinámica basada en temperatura (colores + emojis)
-- ⚡ Indicador de carga
-- ❌ Manejo de errores amigable
-- 📱 Diseño responsivo
-- 🧪 Pruebas unitarias con Jest
+## ✨ Features
+- 🔍 Real-time city search
+- 🌡️ Current temperature display
+- 💨 Wind speed display
+- 🎨 Dynamic UI based on temperature
+- ⚡ Loading indicator (in search button)
+- ❌ User-friendly error handling
+- 📱 Responsive design
+- 🧪 Unit testing with Jest
 
 ---
-
-## ⚠️ Manejo de errores
-
-La aplicación maneja distintos tipos de errores personalizados:
-
-### 1. Ciudad no encontrada
-Se lanza: CityNotFoundError
-Mensaje:
-"No encontramos "<ciudad>". Verifica el nombre e intenta de nuevo."
-### 2. Error de red
-Se lanza: NetworkError
-Mensaje:
-"Sin conexión. Revisa tu internet e intenta de nuevo."
-### 3. Error desconocido
-Cualquier otro error no controlado
-Se muestra un mensaje genérico al usuario
-
----
-
-## 🌐 Información de la API
-
-La aplicación utiliza Open-Meteo API:
-
-### 1. Geocoding API
-
-Convierte el nombre de la ciudad en coordenadas:
-```bash
-https://geocoding-api.open-meteo.com/v1/search
-```
-Parámetros:
-- name: nombre de la ciudad
-- count: número de resultados
-- language: idioma
-- format: json
-
-### 2. Weather API
-
-Obtiene el clima actual:
-```bash
-https://api.open-meteo.com/v1/forecast
-```
-Parámetros:
-- latitude
-- longitude
-- current_weather=true
-
----
-
-## 🧪 Cobertura de pruebas
-
-Las pruebas incluyen:
-
-✅ Caso exitoso (ciudad válida)
-❌ Ciudad inexistente
-🌐 Error de red
-⚠️ Respuesta inesperada de la API
-⏱️ Fallo en la API de clima
-
----
-
-## 🛠️ Tecnologías utilizadas
-Next.js
-React
-TypeScript
-Tailwind CSS
-Jest
-
-## 🔮 Mejoras futuras
-
-Algunas ideas para mejorar el proyecto:
-
-🌍 Soporte para múltiples idiomas
-📍 Geolocalización automática del usuario
-📅 Pronóstico extendido (varios días)
-💾 Historial de búsquedas recientes
