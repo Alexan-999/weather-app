@@ -109,3 +109,18 @@ UI Displays:
 - 🧪 Unit testing with Jest
 
 ---
+
+## ⚠️ Error Handling
+The application handles different types of errors:
+
+### 1. City Not Found
+Error: CityNotFoundError
+Message: We couldn't find "<city>". Please check the name and try again.
+
+### 2. Network Error
+Error: NetworkError
+Message: No connection. Please check your internet and try again.
+
+### 3. Unknown Error
+Any unhandled error will display a generic message to the user.
+
