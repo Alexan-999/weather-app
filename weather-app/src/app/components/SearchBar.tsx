@@ -22,7 +22,7 @@ export default function SearchBar({
         onChange={(e) => setCity(e.target.value)}
         onKeyDown={handleKeyDown}
         type="text"
-        placeholder="Ciudad, país..."
+        placeholder="City, country..."
         disabled={isLoading}
         className="flex-1 min-w-0 border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 px-4 py-3 rounded-2xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 transition disabled:opacity-50"
 
@@ -39,10 +39,10 @@ export default function SearchBar({
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
             </svg>
-            Buscando
+            Searching
           </span>
         ) : (
-          "Buscar"
+          "Search"
         )}
       </button>
     </div>

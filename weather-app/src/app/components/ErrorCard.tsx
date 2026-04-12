@@ -10,21 +10,21 @@ export default function ErrorCard({
   const config = {
     not_found: {
       emoji: "🔍",
-      title: "Ciudad no encontrada",
+      title: "City not found",
       colors: "border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40",
       titleColors: "text-amber-700 dark:text-amber-400",
       messageColors: "text-amber-600 dark:text-amber-500",
     },
     network: {
       emoji: "📡",
-      title: "Error de conexión",
+      title: "Connection error",
       colors: "border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/40",
       titleColors: "text-rose-700 dark:text-rose-400",
       messageColors: "text-rose-600 dark:text-rose-500",
     },
     unknown: {
       emoji: "⚠️",
-      title: "Algo salió mal",
+      title: "Something went wrong",
       colors: "border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900",
       titleColors: "text-zinc-700 dark:text-zinc-400",
       messageColors: "text-zinc-600 dark:text-zinc-500",

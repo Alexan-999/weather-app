@@ -34,7 +34,7 @@ const handleSearch = async (city: string) => {
     } else {
       setErrorType("unknown");
     }
-    setError(err instanceof Error ? err.message : "Error inesperado.");
+    setError(err instanceof Error ? err.message : "Unexpected error.");
   } finally {
     setIsLoading(false);
   }

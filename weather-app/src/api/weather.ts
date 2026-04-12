@@ -61,14 +61,14 @@ function saveToCache(city: string, data: Weather) {
 
 export class CityNotFoundError extends Error {
   constructor(city: string) {
-    super(`No encontramos "${city}". Verifica el nombre e intenta de nuevo.`);
+    super(`We couldn't find "${city}". Check the name and try again.`);
     this.name = "CityNotFoundError";
   }
 }
 
 export class NetworkError extends Error {
   constructor() {
-    super("Sin conexión. Revisa tu internet e intenta de nuevo.");
+    super("No connection. Check your internet and try again.");
     this.name = "NetworkError";
   }
 }
