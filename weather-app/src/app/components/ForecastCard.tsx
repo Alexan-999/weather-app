@@ -2,11 +2,14 @@ import { ForecastDay } from "@/api/types/weatherType";
 import { getWeatherIcon } from "@/utils/weatherUtils";
 
 function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", {
+  const [year, month, day] = date.split("-").map(Number);
+
+  const localDate = new Date(year, month - 1, day);
+
+  return localDate.toLocaleDateString("en-US", {
     weekday: "short",
   });
 }
-
 export default function ForecastCard({ forecast }: { forecast: ForecastDay[] }) {
   return (
     <div className="w-full mt-4">
