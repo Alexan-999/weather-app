@@ -2,6 +2,8 @@
 
 A simple web application built with **Next.js** that allows users to search for the current weather by city and its 5 day forecast. It uses the Open-Meteo API to fetch real-time data such as temperature and wind speed.
 
+YouTube video: https://youtu.be/V6j2gKk7qRo
+
 ---
 
 ## 📌Project Overview
