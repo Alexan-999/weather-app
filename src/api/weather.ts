@@ -1,3 +1,12 @@
+import type { Weather } from "./types/weatherType";
+
+export type GeoCandidate = {
+  name: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+};
+
 export interface ForecastDay {
   date: string;
   maxTemperature: number;
@@ -5,21 +14,8 @@ export interface ForecastDay {
   weathercode: number;
 }
 
-export interface Weather {
-  temperature: number;
-  windspeed: number;
-  city: string;
-  country: string;
-  forecast: ForecastDay[];
-}
-
 type GeoResult = {
-  results?: {
-    name: string;
-    country: string;
-    latitude: number;
-    longitude: number;
-  }[];
+  results?: GeoCandidate[];
 };
 
 type WeatherResponse = {
@@ -32,18 +28,22 @@ type WeatherResponse = {
     time: string[];
     temperature_2m_max: number[];
     temperature_2m_min: number[];
-    weathercode: number[]; 
+    weathercode: number[];
   };
 };
 
+const ONE_HOUR = 1000 * 60 * 60;
+
 const cache = new Map<string, { data: Weather; timestamp: number }>();
 
-function getFromCache(city: string): Weather | null {
-  const record = cache.get(city.toLowerCase());
+export function clearWeatherCache() {
+  cache.clear();
+}
+
+function getFromCache(cacheKey: string): Weather | null {
+  const record = cache.get(cacheKey);
 
   if (!record) return null;
-
-  const ONE_HOUR = 1000 * 60 * 60;
 
   if (Date.now() - record.timestamp < ONE_HOUR) {
     return record.data;
@@ -52,11 +52,15 @@ function getFromCache(city: string): Weather | null {
   return null;
 }
 
-function saveToCache(city: string, data: Weather) {
-  cache.set(city.toLowerCase(), {
+function saveToCache(cacheKey: string, data: Weather) {
+  cache.set(cacheKey, {
     data,
     timestamp: Date.now(),
   });
+}
+
+function getWeatherCacheKey(candidate: GeoCandidate) {
+  return `${candidate.latitude},${candidate.longitude}`;
 }
 
 export class CityNotFoundError extends Error {
@@ -73,10 +77,20 @@ export class NetworkError extends Error {
   }
 }
 
-async function getCoordinates(city: string) {
+export class AmbiguousCityError extends Error {
+  candidates: GeoCandidate[];
+
+  constructor(city: string, candidates: GeoCandidate[]) {
+    super(`Multiple matches found for "${city}". Please choose one.`);
+    this.name = "AmbiguousCityError";
+    this.candidates = candidates;
+  }
+}
+
+async function getGeoCandidates(city: string) {
   const res = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
-    );
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=10&language=en&format=json`
+  );
 
   if (!res.ok) throw new NetworkError();
 
@@ -86,17 +100,45 @@ async function getCoordinates(city: string) {
     throw new CityNotFoundError(city);
   }
 
-  return data.results[0];
+  return data.results;
 }
 
 async function getWeather(latitude: number, longitude: number) {
   const res = await fetch(
-  `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`
-);
+    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`
+  );
 
   if (!res.ok) throw new NetworkError();
 
   return res.json() as Promise<WeatherResponse>;
+}
+
+export async function getWeatherByCoordinates(candidate: GeoCandidate): Promise<Weather> {
+  const cacheKey = getWeatherCacheKey(candidate);
+
+  const cached = getFromCache(cacheKey);
+  if (cached) {
+    console.log("Using cache");
+    return cached;
+  }
+
+  const weatherData = await getWeather(candidate.latitude, candidate.longitude);
+
+  const result: Weather = {
+    temperature: weatherData.current_weather.temperature,
+    windspeed: weatherData.current_weather.windspeed,
+    city: candidate.name,
+    country: candidate.country,
+    forecast: mapForecast(weatherData.daily),
+  };
+
+  saveToCache(cacheKey, result);
+
+  return result;
+}
+
+export async function getGeoCandidatesByCity(city: string): Promise<GeoCandidate[]> {
+  return getGeoCandidates(city);
 }
 
 function mapForecast(data: WeatherResponse["daily"]) {
@@ -133,26 +175,11 @@ function mapForecast(data: WeatherResponse["daily"]) {
  */
 
 export async function getWeatherByCity(city: string): Promise<Weather> {
+  const candidates = await getGeoCandidates(city);
 
-  const cached = getFromCache(city);
-  if (cached) {
-    console.log("Using cache");
-    return cached;
+  if (candidates.length > 1) {
+    throw new AmbiguousCityError(city, candidates);
   }
 
-  const { latitude, longitude, name, country } = await getCoordinates(city);
-  const weatherData = await getWeather(latitude, longitude);
-  
-  const result: Weather = {
-    temperature: weatherData.current_weather.temperature,
-    windspeed: weatherData.current_weather.windspeed,
-    city: name,
-    country,
-    forecast: mapForecast(weatherData.daily),
-  };
-
-  saveToCache(city, result);
-
-  return result;
-
+  return getWeatherByCoordinates(candidates[0]);
 }

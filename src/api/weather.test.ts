@@ -1,4 +1,4 @@
-import { getWeatherByCity, CityNotFoundError, NetworkError } from "./weather";
+import { getWeatherByCity, clearWeatherCache, AmbiguousCityError, CityNotFoundError, NetworkError } from "./weather";
 
 global.fetch = jest.fn();
 
@@ -6,6 +6,7 @@ describe("getWeatherByCity", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    clearWeatherCache();
   });
 
   it("returns weather data for a valid city", async () => {
@@ -32,6 +33,12 @@ describe("getWeatherByCity", () => {
             temperature: 20,
             windspeed: 5,
           },
+          daily: {
+            time: [],
+            temperature_2m_max: [],
+            temperature_2m_min: [],
+            weathercode: [],
+          },
         }),
       });
 
@@ -42,7 +49,32 @@ describe("getWeatherByCity", () => {
       windspeed: 5,
       city: "Madrid",
       country: "Spain",
+      forecast: [],
     });
+  });
+
+  it("throws AmbiguousCityError if multiple locations match", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        results: [
+          {
+            name: "Tokyo",
+            country: "Japan",
+            latitude: 35.6,
+            longitude: 139.7,
+          },
+          {
+            name: "Tokyo",
+            country: "United States",
+            latitude: 38.0,
+            longitude: -122.0,
+          },
+        ],
+      }),
+    });
+
+    await expect(getWeatherByCity("Tokyo")).rejects.toBeInstanceOf(AmbiguousCityError);
   });
 
   it("throws CityNotFoundError if city does not exist", async () => {
